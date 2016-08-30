@@ -1,0 +1,91 @@
+<html>
+	<head>
+		<title>Testing Facebook API</title>
+		<style type="text/css">
+			img{
+				width:100px;
+				border-radius: 5px;
+				border:1px solid #dadada;
+				margin:5px;
+			}
+			h1{
+				color: #3f51b5;
+				border-top: 1px solid #3f51b5;border-bottom: 1px solid #3f51b5;
+			}
+			.button{
+				border-top: 1px solid #3f51b5;
+				margin-top: 20px;
+			}
+			.button button{
+				border:none;
+				color:#fff;
+				padding:5px 15px;
+				cursor:pointer;
+				background-color:  #3f51b5;
+			}
+		</style>
+	</head>
+	<body>
+		<center>
+			<h1>FACEBOOK API</h1>
+			<div id="image"></div>
+			<div class="button">
+				<button id="btnLoad">LOAD</button>
+			</div>
+			
+		</center>
+
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+		<script type="text/javascript">
+			$(document).ready(function(){
+				var fields = 'images&limit=2';
+				var nodes = 'me';
+				var edges = 'photos';
+				var url = requestURL(nodes, edges, fields);
+				
+				loadImage();
+
+				function userImages(data){
+					var html = "";
+					url = data.paging.next;
+					$.each(data, function(key, values){
+						$.each(values, function(k, v){
+							html += "<a href='"+v.images[0].source+"'><img src=" + v.images[0].source + "></a>";
+						});
+						$('#image').append(html);
+					});
+				}; 
+				$('#btnLoad').click(function(){
+					if(url=='' || url==undefined){
+						alert('no photo more!');
+						return;	
+					}
+					loadImage();
+				});
+				function loadImage(){
+					$('#btnLoad').css({"cursor":"wait"});
+					$.ajax({
+						url: url,
+						method: 'GET',
+						success: function(data){
+							$('#btnLoad').css({"cursor":"pointer"});
+							userImages(data);
+						}
+					});
+				};
+
+				function requestURL(nodes="me", edges="", fields=""){
+					var domain = "https://graph.facebook.com/";
+					var version = "v2.6/";
+					var accessToken = '?access_token=EAAEIqKmxtwMBAAgUqQ1263E3WoZBVPtSJ8XC1CPYPxCGrSaRO3EvpP87MdxiIoAW4ZC722LxyaOjyHNKjATj8qU4ATxOxjT7Qorw4fa8iStUW3EZCYR5CNgbMZAL7wgJ5pQERAblN0hSsslT4ZAhYolgHX0aLEmFCedQRtgEwbh5r6fZAx7n6vO2csLFYEoPEZD';
+					if(edges!='')
+						edges += '/';
+					if(fields!='')
+						fields = '&fields=' + fields;
+					
+					return domain + version + nodes + "/" + edges + accessToken + fields;
+				};
+			});
+		</script>
+	</body>
+</html>
